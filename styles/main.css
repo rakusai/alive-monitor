@@ -1,0 +1,33 @@
+	body {
+		font-family:sans-serif;
+		text-align: center;
+		color:#666;
+	}
+	h1 a {
+	    color:#666;
+	    text-decoration: none;
+	}
+	.alive_status {
+	    background-color:gray;
+	    line-height: 30px;
+	    font-size:20px;
+	    color:white;
+	    width:30px;
+	    display: inline-block;
+	    text-align:center;
+	    -webkit-border-radius:15px;
+	}
+	
+	.content {
+	    width:300px;
+	    margin:0 auto;
+	    text-align:left;
+	    border:1px gray solid;
+	    background-color:#EEE;
+	    -webkit-border-radius:10px;
+	    color:#666;
+	    padding:20px 30px;
+	}
+	.edit_link {
+	    font-size:9px;
+	}

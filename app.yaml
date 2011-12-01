@@ -1,0 +1,18 @@
+# アプリケーションのID
+application: alive-monitor
+
+# アプリケーションのバージョン
+version: 1-2
+
+# ランタイムの名称。現時点では「python」のみ
+runtime: python
+
+# アプリケーションが前提としているAPIのバージョン
+api_version: 1
+
+# URLと、その処理方法の定義
+handlers:
+- url: /styles
+  static_dir: styles
+- url: /.*
+  script: application.py
