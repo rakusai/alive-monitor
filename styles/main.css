@@ -2,6 +2,8 @@
 		font-family:sans-serif;
 		text-align: center;
 		color:#666;
+		width:380px;
+		margin:0 auto;
 	}
 	h1 a {
 	    color:#666;
@@ -19,8 +21,7 @@
 	}
 	
 	.content {
-	    width:300px;
-	    margin:0 auto;
+	    margin:0 10px;
 	    text-align:left;
 	    border:1px gray solid;
 	    background-color:#EEE;

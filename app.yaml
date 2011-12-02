@@ -2,7 +2,7 @@
 application: alive-monitor
 
 # アプリケーションのバージョン
-version: 1-2
+version: 1
 
 # ランタイムの名称。現時点では「python」のみ
 runtime: python
