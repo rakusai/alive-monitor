@@ -148,8 +148,11 @@ class Check(webapp.RequestHandler):
             try:
                 result = urlfetch.fetch(entry.url,deadline=30)
                 if result.status_code != 200:
-                    alive = False
-                    error_reason = str(result.status_code) + " Error"
+                    #try again
+                    result = urlfetch.fetch(entry.url,deadline=30)
+                    if result.status_code != 200:
+                        alive = False
+                        error_reason = str(result.status_code) + " Error"
                 elif entry.keyword:
                     if not re.search(entry.keyword, result.content):
                         alive = False
