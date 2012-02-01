@@ -29,6 +29,7 @@ class Entry(db.Model):
     alive = db.BooleanProperty(default=True)
     started = db.BooleanProperty(default=False)
     error_reason = db.StringProperty()
+    error_count = db.IntegerProperty(default=0)
     keyword = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
     update = db.DateTimeProperty(auto_now=True)
@@ -168,19 +169,24 @@ class Check(webapp.RequestHandler):
             diff = datetime.datetime.now() - entry.update
 
             if entry.alive != alive or not entry.started:
-                if diff.seconds > 60+30 or not entry.started:
-                    admsg = ""
-                    if not entry.started:
-                        admsg = "Monitor Start"
-                        entry.started = True
-                    entry.error_reason = error_reason
-                    entry.alive = alive
+                admsg = ""
+                if not entry.started:
+                    admsg = "Monitor Start"
+                    entry.started = True
+                entry.error_reason = error_reason
+                entry.alive = alive
+                entry.error_count = 0
+                entry.put()
+                if alive:
                     email_notification(entry,admsg)
+            elif not alive:
+                if entry.error_count == 0:
+                    entry.error_count = 1
                     entry.put()
-            else:
-                if not alive and diff.seconds > 60*60:
+                    email_notification(entry)
+                elif diff.seconds > 60*60:
                     email_notification(entry,"More than %d hour!" % int(diff.seconds / 3600))
-                    entry.put()                
+                    entry.put()
 
         now = datetime.datetime.now()
         memcache.set("lastcheckedtime",now)
