@@ -149,10 +149,8 @@ class Check(webapp.RequestHandler):
                 result = urlfetch.fetch(entry.url,deadline=30)
                 if result.status_code != 200:
                     #try again
-                    result = urlfetch.fetch(entry.url,deadline=30)
-                    if result.status_code != 200:
-                        alive = False
-                        error_reason = str(result.status_code) + " Error"
+                    alive = False
+                    error_reason = str(result.status_code) + " Error"
                 elif entry.keyword:
                     if not re.search(entry.keyword, result.content):
                         alive = False
@@ -167,21 +165,22 @@ class Check(webapp.RequestHandler):
                 alive = False               
                 error_reason = "Enexpected Error"
             
+            diff = datetime.datetime.now() - entry.update
+
             if entry.alive != alive or not entry.started:
-                admsg = ""
-                if not entry.started:
-                    admsg = "Monitor Start"
-                entry.started = True
-                entry.error_reason = error_reason
-                entry.alive = alive
-                email_notification(entry,admsg)
-                entry.put()
+                if diff.seconds > 60+30 or not entry.started:
+                    admsg = ""
+                    if not entry.started:
+                        admsg = "Monitor Start"
+                        entry.started = True
+                    entry.error_reason = error_reason
+                    entry.alive = alive
+                    email_notification(entry,admsg)
+                    entry.put()
             else:
-                if not alive:
-                    diff = datetime.datetime.now() - entry.update
-                    if diff.seconds > 60*60:
-                        email_notification(entry,"More than 1 hour!")
-                        entry.put()                
+                if not alive and diff.seconds > 60*60:
+                    email_notification(entry,"More than %d hour!" % int(diff.seconds / 3600))
+                    entry.put()                
 
         now = datetime.datetime.now()
         memcache.set("lastcheckedtime",now)
