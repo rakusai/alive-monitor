@@ -29,7 +29,7 @@ class Entry(db.Model):
     alive = db.BooleanProperty(default=True)
     started = db.BooleanProperty(default=False)
     error_reason = db.StringProperty()
-    error_count = db.IntegerProperty(default=0)
+    error_hour = db.IntegerProperty(default=0)
     keyword = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True)
     update = db.DateTimeProperty(auto_now=True)
@@ -166,28 +166,37 @@ class Check(webapp.RequestHandler):
                 alive = False               
                 error_reason = "Enexpected Error"
             
-            diff = datetime.datetime.now() - entry.update
 
+            admsg = ''
+            sendmail = False
             if entry.alive != alive or not entry.started:
-                admsg = ""
                 if not entry.started:
                     admsg = "Monitor Start"
                     entry.started = True
+                    sendmail = True
+                if alive and entry.error_hour == 1:
+                    sendmail = True
                 entry.error_reason = error_reason
                 entry.alive = alive
-                entry.error_count = 0
+                entry.error_hour = 0
                 entry.put()
-                if alive:
-                    email_notification(entry,admsg)
             elif not alive:
-                if entry.error_count == 0:
-                    entry.error_count = 1
+                entry.error_reason = error_reason
+                diff = datetime.datetime.now() - entry.update
+                if entry.error_hour == 0:
+                    entry.error_hour = 1
                     entry.put()
-                    email_notification(entry)
+                    sendmail = True
                 elif diff.seconds > 60*60:
-                    email_notification(entry,"More than %d hour!" % int(diff.seconds / 3600))
+                    sendmail = True
+                    admsg = "More than %d hour!" % entry.error_hour
+                    entry.error_hour += 1
                     entry.put()
-
+            
+            if sendmail:
+                email_notification(entry,admsg)
+                
+                    
         now = datetime.datetime.now()
         memcache.set("lastcheckedtime",now)
 
