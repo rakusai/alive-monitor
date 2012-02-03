@@ -174,7 +174,7 @@ class Check(webapp.RequestHandler):
                     admsg = "Monitor Start"
                     entry.started = True
                     sendmail = True
-                if alive and entry.error_hour == 1:
+                if alive and entry.error_hour >= 1:
                     sendmail = True
                 entry.error_reason = error_reason
                 entry.alive = alive
