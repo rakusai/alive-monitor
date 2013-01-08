@@ -132,7 +132,7 @@ def email_notification(entry,additional_message = ""):
         
     body = subject + "\n\n" + "http://alive-monitor.appspot.com/"
         
-    mail.send_mail(sender="Alive Monitor <rakusai@gmail.com>",
+    mail.send_mail(sender="Alive Monitor <server@nota.jp>",
                   to="server@nota.jp",
                   subject=subject,
                   body=body)        
