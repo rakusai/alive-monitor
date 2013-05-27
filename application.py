@@ -120,7 +120,7 @@ class EditPage(webapp.RequestHandler):
         
         self.redirect("/")
         
-def email_notification(entry,additional_message = ""):
+def email_notification(entry,additional_message = "",body=""):
     subject = ''
     body = ''
     if entry.alive:
@@ -130,7 +130,7 @@ def email_notification(entry,additional_message = ""):
     if additional_message:
         subject += " (" + additional_message + ")"
         
-    body = subject + "\n\n" + "http://alive-monitor.appspot.com/"
+    body = subject + "\n--\n"  + body  + "\n--\n"  + "http://alive-monitor.appspot.com/"
         
     mail.send_mail(sender="Alive Monitor <server@nota.jp>",
                   to="server@nota.jp",
@@ -146,6 +146,7 @@ class Check(webapp.RequestHandler):
         for entry in entries:
             alive = True
             error_reason = ''
+            error_body = ''
             try:
                 result = urlfetch.fetch(entry.url,deadline=30)
                 if result.status_code != 200:
@@ -156,6 +157,9 @@ class Check(webapp.RequestHandler):
                     if not re.search(entry.keyword, result.content):
                         alive = False
                         error_reason = "Missing Keyword Error"
+                for h in result.headers:
+                    error_body += h + ": " + result.headers.get(h) + "\n"
+                error_body += result.content
             except urlfetch.DownloadError:
                 alive = False               
                 error_reason = "Download Error"
@@ -194,7 +198,7 @@ class Check(webapp.RequestHandler):
                     entry.put()
             
             if sendmail:
-                email_notification(entry,admsg)
+                email_notification(entry,admsg,error_body)
                 
                     
         now = datetime.datetime.now()
